@@ -9,6 +9,7 @@
   "author": "Francesco Nwokeka <francesco.nwokeka@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
+    "dotenv": "^4.0.0",
     "mysql": "^2.15.0"
   }
 }

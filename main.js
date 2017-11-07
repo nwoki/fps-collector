@@ -2,12 +2,10 @@
  * Collector
  * ========
  *
- * Basicall a TCP server that takes incoming info from parsers and stores them into the db.
+ * Basicall a UDP server that takes incoming info from parsers and stores them into the db.
  *
  * TODO:
  * - rest api for frontend/mobile/whatever (READ ONLY)
- * - server for incoming data
- * - save stats to database
  */
 
 
@@ -15,6 +13,7 @@
  * multiple clients. And the data to receive is not large, so who cares, it's
  * just some stats
  */
+require('dotenv').config()
 const dgram = require("dgram");
 var server = dgram.createSocket("udp4");
 var mysqlHandler = require("./mysqlhandler.js");
@@ -75,6 +74,6 @@ server.on("listening", function() {
 
 server.on("message", parseMessage);
 
-server.bind(6666);
+server.bind(process.env.COLLECTOR_PORT);
 
 

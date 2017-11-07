@@ -9,10 +9,10 @@ var mysql = require("mysql");
 var pool = mysql.createPool({
     // TODO load from env
     connectionLimit : 5,
-    host: "localhost",
-    user: "root",
-    password: "root",
-    database: "cod2"
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASS,
+    database: process.env.MYSQL_DB_NAME
 });
 
 
