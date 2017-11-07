@@ -60,6 +60,40 @@ function playerExists(playerGuid, playerName) {
     });
 }
 
+function playerKill(jsonData) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
+            console.log("[Mysqlhandler::playerKill] ERROR: " + err);
+        } else {
+            connection.query(mysql.format("select id from killcount where killer=? and victim=?", [jsonData["killer_guid"], jsonData["victim_guid"]]), function (error, results, fields) {
+                if (err) {
+                    console.log("[Mysqlhandler::playerKill] ERROR: " + error);
+                } else {
+                    console.log("COUNT: " + results.length);
+
+                    if (results.length == 0) {
+                        // create the new relationship
+                        connection.query(mysql.format("insert into killcount (killer, victim, kills, ??) values (?, ?, 1, 1)", [jsonData["body_part"], jsonData["killer_guid"], jsonData["victim_guid"]]), function (error, results, fields) {
+                            if (error) {
+                                console.log("[Mysqlhandler::playerKill] Insert error: " + error);
+                            }
+                            connection.release();
+                        });
+                    } else {
+                        // update stats
+                        connection.query(mysql.format("update killcount set kills=kills+1, ??=??+1 where killer=? and victim=?", [jsonData["body_part"], jsonData["body_part"], jsonData["killer_guid"], jsonData["victim_guid"]]), function (error, results, fields) {
+                            if (error) {
+                                console.log("[Mysqlhandler::playerKill] ERROR: " + error);
+                            }
+                            connection.release();
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
 
 module.exports = {
     playerJoined: function(data) {
@@ -70,5 +104,10 @@ module.exports = {
         //     "name": "asasd"
         // }
         playerExists(data["guid"], data["name"]);
+    },
+    playerKilled: function (data) {
+        // we receive the follogin json
+        // {"type":"K","victim_guid":"929642","victim_name":"Tegamen","killer_guid":"705473","killer_name":"Sbiego","body_part":"head"}
+        playerKill(data);
     }
 }

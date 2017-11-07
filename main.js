@@ -27,9 +27,9 @@ function parseMessage(message, remoteInfo) {
     // parse data
     try {
         var jsonObject = JSON.parse(message);
-        console.log("AD JSON IS: " + jsonObject);
+        console.log("JOIN JSON IS: " + jsonObject);
         var dataObj = jsonObject["data"];
-        var action = dataObj["action"];
+        var actionType = dataObj["type"];
 
         // JOIN
         // {\"data\":{\"action\":\"J\", \"guid\":\"12asd34414\", \"name\":\"unknwon \"}}
@@ -40,11 +40,13 @@ function parseMessage(message, remoteInfo) {
         //                 "name": "asasd"
         //             }
         //         }
-        if (action == "J") {
+        if (actionType == "J") {
             // add to database if missing
             mysqlHandler.playerJoined(dataObj);
+        } else if (actionType == "K") {
+            // check if the killer - victim relationship exists
+            mysqlHandler.playerKilled(dataObj);
         }
-
 
         // KILL
 //         {
