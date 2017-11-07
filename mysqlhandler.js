@@ -23,8 +23,8 @@ function addPlayer(playerGuid, playerName) {
             console.log("");
         } else {
             // add the player to our database
-            connection.query("insert into players values(\"" + playerGuid + "\",\"" + playerName + "\")", function() {
-                if (err) {
+            connection.query(mysql.format("insert into players values(?, ?)", [playerGuid, playerName]), function(error, results, fields) {
+                if (error) {
                     console.log("ERR- " + error);
                 } else {
                     connection.release();
@@ -42,8 +42,8 @@ function playerExists(playerGuid, playerName) {
         if (err) {
             console.log("[Mysqlhandler::playerexists] ERROR: " + err);
         } else {
-            console.log(" lookgin for: " + playerGuid);
-            connection.query("select * from players where guid=\"" + playerGuid + "\"", function (error, results, fields) {
+            console.log("[Mysqlhandler::playerexists] looking for: " + playerGuid);
+            connection.query(mysql.format("select * from players where guid=?", [playerGuid]), function (error, results, fields) {
                 if (err) {
                     console.log("ERR- " + error);
                 } else {
