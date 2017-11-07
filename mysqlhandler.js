@@ -7,7 +7,6 @@
 
 var mysql = require("mysql");
 var pool = mysql.createPool({
-    // TODO load from env
     connectionLimit : 5,
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
