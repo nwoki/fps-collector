@@ -4,7 +4,8 @@
   "description": "Stats collector for fps games",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/main.js"
   },
   "author": "Francesco Nwokeka <francesco.nwokeka@gmail.com>",
   "license": "GPL-3.0",
