@@ -18,9 +18,9 @@ var pool = mysql.createPool({
 
 // REDIS
 //------
-var client = redis.createClient();
+var redisClient = redis.createClient();
 
-client.on('connect', function() {
+redisClient.on('connect', function() {
     console.log('Connected to Redis');
 });
 
@@ -41,9 +41,8 @@ function addPlayer(playerName) {
                     connection.release();
                     console.log("[Mysqlhandler::addPlayer] player added with id: " + results.insertId );
 
-                    // TODO add to the redis db for quick retrieval
                     // add alias id to the redis db
-                    client.set(playerName, results.insertId);
+                    redisClient.set(playerName, results.insertId);
                 }
             });
         }
@@ -53,22 +52,33 @@ function addPlayer(playerName) {
 
 /** check if the player is already stored on the database. If not, add it */
 function playerExists(playerName) {
-    pool.getConnection(function (err, connection) {
-        if (err) {
-            console.log("[Mysqlhandler::playerexists] ERROR: " + err);
-        } else {
-            // TODO first check we've already got it in the redis db
-            console.log("[Mysqlhandler::playerexists] looking for: " + playerName);
-            connection.query(mysql.format("select id from aliases where name=?", [playerName]), function (error, results, fields) {
-                if (err) {
-                    console.log("ERR- " + error);
-                } else {
-                    connection.release();
-                    console.log("COUNT: " + results.length);
+    // first thing to do is to check the redis database for the player we're looking for
+    redisClient.get(playerName, function(err, reply) {
+        // reply is null when the key is missing
+        console.log("-------> " + reply);
 
-                    if (results.length == 0) {
-                        addPlayer(playerName);
-                    }
+        if (reply == null) {
+            pool.getConnection(function (err, connection) {
+                if (err) {
+                    console.log("[Mysqlhandler::playerexists] ERROR: " + err);
+                } else {
+                    // TODO first check we've already got it in the redis db
+                    console.log("[Mysqlhandler::playerexists] looking for: " + playerName);
+                    connection.query(mysql.format("select id from aliases where name=?", [playerName]), function (error, results, fields) {
+                        if (err) {
+                            console.log("ERR- " + error);
+                        } else {
+                            connection.release();
+                            console.log("COUNT: " + results.length);
+
+                            if (results.length == 0) {
+                                addPlayer(playerName);
+                            } else {
+                                // add alias id to the redis db (cache it)
+                                redisClient.set(playerName, results.insertId);
+                            }
+                        }
+                    });
                 }
             });
         }
