@@ -16,19 +16,22 @@ var pool = mysql.createPool({
 
 
 
-
-function addPlayer(playerGuid, playerName) {
+function addPlayer(playerName) {
+    console.log("[AddPlayer]");
     pool.getConnection(function (err, connection) {
         if (err) {
             console.log("");
         } else {
+            // TODO check that both players are in the db before creating this relationship
             // add the player to our database
-            connection.query(mysql.format("insert into players values(?, ?)", [playerGuid, playerName]), function(error, results, fields) {
+            connection.query(mysql.format("insert into aliases (name) values(?)", [playerName]), function(error, results, fields) {
                 if (error) {
                     console.log("ERR- " + error);
                 } else {
                     connection.release();
                     console.log("[Mysqlhandler::addPlayer] player added");
+
+                    // TODO add to the redis db for quick retrieval
                 }
             });
         }
@@ -37,13 +40,14 @@ function addPlayer(playerGuid, playerName) {
 
 
 /** check if the player is already stored on the database. If not, add it */
-function playerExists(playerGuid, playerName) {
+function playerExists(playerName) {
     pool.getConnection(function (err, connection) {
         if (err) {
             console.log("[Mysqlhandler::playerexists] ERROR: " + err);
         } else {
-            console.log("[Mysqlhandler::playerexists] looking for: " + playerGuid);
-            connection.query(mysql.format("select * from players where guid=?", [playerGuid]), function (error, results, fields) {
+            // TODO first check we've already got it in the redis db
+            console.log("[Mysqlhandler::playerexists] looking for: " + playerName);
+            connection.query(mysql.format("select id from aliases where name=?", [playerName]), function (error, results, fields) {
                 if (err) {
                     console.log("ERR- " + error);
                 } else {
@@ -51,7 +55,7 @@ function playerExists(playerGuid, playerName) {
                     console.log("COUNT: " + results.length);
 
                     if (results.length == 0) {
-                        addPlayer(playerGuid, playerName);
+                        addPlayer(playerName);
                     }
                 }
             });
@@ -102,7 +106,7 @@ module.exports = {
         //     "guid": "asdasdads",
         //     "name": "asasd"
         // }
-        playerExists(data["guid"], data["name"]);
+        playerExists(/*data["guid"], */data["name"]);
     },
     playerKilled: function (data) {
         // we receive the follogin json
