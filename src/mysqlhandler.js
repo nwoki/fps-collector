@@ -6,12 +6,22 @@
  */
 
 var mysql = require("mysql");
+var redis = require("redis");
+
 var pool = mysql.createPool({
     connectionLimit : 5,
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASS,
     database: process.env.MYSQL_DB_NAME
+});
+
+// REDIS
+//------
+var client = redis.createClient();
+
+client.on('connect', function() {
+    console.log('Connected to Redis');
 });
 
 
@@ -29,9 +39,11 @@ function addPlayer(playerName) {
                     console.log("ERR- " + error);
                 } else {
                     connection.release();
-                    console.log("[Mysqlhandler::addPlayer] player added");
+                    console.log("[Mysqlhandler::addPlayer] player added with id: " + results.insertId );
 
                     // TODO add to the redis db for quick retrieval
+                    // add alias id to the redis db
+                    client.set(playerName, results.insertId);
                 }
             });
         }
