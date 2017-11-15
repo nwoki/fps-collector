@@ -16,7 +16,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS aliases;
 CREATE TABLE aliases (
     id int unsigned NOT NULL AUTO_INCREMENT,
-    name varchar (20) NOT NULL,
+    name varchar (40) NOT NULL,
 --     player_id int unsigned NOT NULL
     PRIMARY KEY (id)
 --     FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE
@@ -41,6 +41,9 @@ CREATE TABLE killcount (
     left_leg_lower int (6) unsigned NOT NULL DEFAULT 0,
     right_leg_upper int (6) unsigned NOT NULL DEFAULT 0,
     right_leg_lower int (6) unsigned NOT NULL DEFAULT 0,
+    left_foot int (6) unsigned NOT NULL DEFAULT 0,
+    right_foot int (6) unsigned NOT NULL DEFAULT 0,
+    frag int (6) unsigned NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     FOREIGN KEY (killer) REFERENCES aliases (id) ON DELETE CASCADE,
     FOREIGN KEY (victim) REFERENCES aliases (id) ON DELETE CASCADE
