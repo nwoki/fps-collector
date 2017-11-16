@@ -9,10 +9,13 @@
  */
 
 require('dotenv').config()
+const express = require("express");
 const dgram = require("dgram");
 var server = dgram.createSocket("udp4");
 var mysqlHandler = require("./mysqlhandler.js");
 
+var api = express();
+var apiPlayers = require("./api/players.js");
 
 
 function parseMessage(message, remoteInfo) {
@@ -47,8 +50,17 @@ server.on("listening", function() {
     console.log("Collector server ready! Listening on port: " + server.address().port);
 });
 
+// UDP SERVER
 server.on("message", parseMessage);
-
 server.bind(process.env.COLLECTOR_PORT);
+
+
+// API SERVER
+api.use("/players", apiPlayers);
+
+api.listen(3000, () => {
+    console.log("API SERVER STARTED");
+});
+
 
 

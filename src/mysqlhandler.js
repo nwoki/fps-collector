@@ -218,7 +218,37 @@ function playerKill(jsonData) {
 }
 
 
+
+
+
+
+// API - mysql calls
+function players() {
+    let promise = new Promise(function(resolve, reject) {
+        // lookup the database to see if the player name is stashed there
+        executeSqlQuery("select name from aliases").then(function(data) {
+            if (data.length > 0) {
+                let jsonObj = {};
+                jsonObj["data"] = {};
+                jsonObj["data"]["players"] = data;
+                resolve(jsonObj);
+            } else {
+                reject(null);
+            }
+        }, function(error) {
+            console.log("[players] ERROR: " + error);
+            reject(Error(error));
+        });
+    });
+
+    return promise;
+}
+
+
 module.exports = {
+    /*
+     * Functions used by the UPD requests when handling stats
+     */
     playerJoined: function(data) {
         // we receive the following json object
         //  "data": {
@@ -236,5 +266,23 @@ module.exports = {
         // we receive the follogin json
         // {"type":"K","victim_guid":"929642","victim_name":"Tegamen","killer_guid":"705473","killer_name":"Sbiego","body_part":"head"}
         console.log("PLAYER KILL REGISTERED LOG: " + playerKill(data));
+    },
+
+
+    /*
+     * Functions used by the API part
+     */
+    players: function() {
+        let promise = new Promise((resolve, reject) => {
+            players().then((data) => {
+                resolve(data);
+            }, (error) => {
+                reject(null);
+            });
+        }, (error) => {
+                reject(error);
+        });
+
+        return promise;
     }
 }
