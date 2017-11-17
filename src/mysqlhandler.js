@@ -357,7 +357,7 @@ module.exports = {
             killScoresGeneric().then((data) => {
                 resolve(JSON.stringify(data));
             }, (error) => {
-                reject("{}");
+                reject(JSON.stringify(error));
             });
         });
 
