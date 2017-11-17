@@ -338,7 +338,7 @@ module.exports = {
     /*
      * Functions used by the API part
      */
-    players: function() {
+    players: () => {
         let promise = new Promise((resolve, reject) => {
             players().then((data) => {
                 resolve(data);
@@ -352,7 +352,7 @@ module.exports = {
         return promise;
     },
 
-    topScoresKills: function() {
+    topScoresKills: () => {
         let promise = new Promise((resolve, reject) => {
             killScoresGeneric().then((data) => {
                 resolve(JSON.stringify(data));
