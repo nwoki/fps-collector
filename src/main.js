@@ -16,6 +16,7 @@ var mysqlHandler = require("./mysqlhandler.js");
 
 var api = express();
 var apiPlayers = require("./api/players.js");
+var apiTopScores = require("./api/topscores.js");
 
 
 function parseMessage(message, remoteInfo) {
@@ -57,6 +58,7 @@ server.bind(process.env.COLLECTOR_PORT);
 
 // API SERVER
 api.use("/players", apiPlayers);
+api.use("/topscores", apiTopScores);
 
 api.listen(3000, () => {
     console.log("API SERVER STARTED");

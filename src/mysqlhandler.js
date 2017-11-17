@@ -140,7 +140,6 @@ function getPlayerFromDatabase(playerName) {
     return promise;
 }
 
-
 function checkPlayerExistance(playerName) {
     var promise = new Promise(function(resolve, reject) {
         getPlayerFromDatabase(playerName).then(function(data) {
@@ -244,6 +243,73 @@ function players() {
     return promise;
 }
 
+/**
+ * returns the top scorer for the given category. The categories are defined in the `killcount` table of the database
+ *
+ * @param category the requested category
+ */
+// function topScorer(category) {
+//     let promise = new Promise(function(resolve, reject) {
+//         executeSqlQuery("select
+//
+//     };
+//
+//     return promise;
+// }
+
+
+/** Returns the top scores for number of kill
+function topScoresKills() {
+    let promise = new Promise(function(resolve, reject) {
+        executeSqlQuery("");
+
+
+
+    };
+
+    return promise;
+}*/
+
+
+/**
+ * TODO
+ * - top score per category (for now, head, nade)
+ * - top score per deaths (with % of how deaths happened)
+ * - top score per deaths per category (for now hed, nade)
+ */
+
+/** return result for top kills with % and number of heads/nade frags */
+function killScoresGeneric() {
+    let promise = new Promise(function(resolve, reject) {
+        executeSqlQuery("select a.name, SUM(k.kills) as 'num_kills', SUM(k.head) as 'num_head', (SUM(k.head)*100)/SUM(k.kills) as 'percent_head', SUM(k.frag) as 'num_nade', (SUM(k.frag)*100)/SUM(k.kills) as 'percent_nade' from aliases a join killcount k on a.id = k.killer group by k.killer order by SUM(k.kills) desc").then(function(data) {
+            let queryObj = {};
+            let resultsArray = [];
+
+            for (let i = 0; i < data.length; ++i) {
+                let resultObj = {};
+                resultObj["player"] = data[i].name;
+                resultObj["num_kills"] = data[i].num_kills;
+                resultObj["num_head"] = data[i].num_head;
+                resultObj["percent_head"] = data[i].percent_head;
+                resultObj["num_nade"] = data[i].num_nade;
+                resultObj["percent_nade"] = data[i].percent_nade;
+
+                resultsArray.push(resultObj);
+            }
+
+            queryObj["data"] = resultsArray;
+            resolve(queryObj);
+        }, function(error) {
+            console.log("KILLSCOREGENERIC error: " + error);
+            let errorObj = {};
+            errorObj["error"] = error;
+            reject(Error(errorObj));
+        });
+    });
+
+    return promise;
+}
+
 
 module.exports = {
     /*
@@ -281,6 +347,18 @@ module.exports = {
             });
         }, (error) => {
                 reject(error);
+        });
+
+        return promise;
+    },
+
+    topScoresKills: function() {
+        let promise = new Promise((resolve, reject) => {
+            killScoresGeneric().then((data) => {
+                resolve(JSON.stringify(data));
+            }, (error) => {
+                reject("{}");
+            });
         });
 
         return promise;
