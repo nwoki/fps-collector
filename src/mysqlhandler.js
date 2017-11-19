@@ -278,6 +278,34 @@ function topScoresKills() {
  * - top score per deaths per category (for now hed, nade)
  */
 
+function killScoreCategory(category) {
+    let promise = new Promise((resolve, reject) => {
+        let queryStr = mysql.format("select a.name, SUM(k.kills) as 'num_kills', SUM(k.head) as 'num_" + category + "', (SUM(k." + category + ")*100)/SUM(k.kills) as 'percent_" + category + "' from aliases a join killcount k on a.id = k.killer group by k.killer order by percent_" + category + " desc limit 0, 5");
+
+        executeSqlQuery(queryStr).then((data) => {
+            let queryObj = {};
+            let resultsArray = [];
+
+            for (let i = 0; i < data.length; ++i) {
+                let resultObj = {};
+                resultObj["player"] = data[i].name;
+                resultObj["num_kills"] = data[i].num_kills;
+                resultObj["num_" + category] = data[i]["num_" + category];
+                resultObj["percent_" + category] = data[i]["percent_" + category];
+
+                resultsArray.push(resultObj);
+            }
+
+            queryObj["data"] = resultsArray;
+            resolve(queryObj);
+        }, (error) => {
+            reject(Error(error));
+        });
+    });
+
+    return promise;
+}
+
 /** return result for top kills with % and number of heads/nade frags */
 function killScoresGeneric() {
     let promise = new Promise(function(resolve, reject) {
@@ -347,6 +375,20 @@ module.exports = {
             });
         }, (error) => {
                 reject(error);
+        });
+
+        return promise;
+    },
+
+    topScoresCategory: (category) => {
+        let promise = new Promise((resolve, reject) => {
+            console.log("REQUESTING: " + category);
+            killScoreCategory(category).then((data) => {
+                console.log("FINAL -> " + JSON.stringify(data));
+                resolve(JSON.stringify(data));
+            }, (error) => {
+                reject(JSON.stringify(error));
+            });
         });
 
         return promise;
