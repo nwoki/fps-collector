@@ -280,7 +280,7 @@ function topScoresKills() {
 
 function killScoreCategory(category) {
     let promise = new Promise((resolve, reject) => {
-        let queryStr = mysql.format("select a.name, SUM(k.kills) as 'num_kills', SUM(k.head) as 'num_" + category + "', (SUM(k." + category + ")*100)/SUM(k.kills) as 'percent_" + category + "' from aliases a join killcount k on a.id = k.killer group by k.killer order by percent_" + category + " desc limit 0, 5");
+        let queryStr = mysql.format("select a.name, SUM(k.kills) as 'num_kills', SUM(k." + category + ") as 'num_" + category + "', (SUM(k." + category + ")*100)/SUM(k.kills) as 'percent_" + category + "' from aliases a join killcount k on a.id = k.killer group by k.killer order by percent_" + category + " desc limit 0, 5");
 
         executeSqlQuery(queryStr).then((data) => {
             let queryObj = {};
